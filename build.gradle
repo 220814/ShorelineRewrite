@@ -43,9 +43,7 @@ dependencies {
 
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    modImplementation "cabaletta:baritone-api:${baritone_api_version}"
 
-    // Discord Implementation $$$
     implementation(shadow("meteordevelopment:discord-ipc:1.1"))
 }
 
@@ -57,10 +55,7 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-    // Minecraft 1.18 (1.18-pre2) upwards uses Java 17.
     it.options.release = 21
-
-    // Make this run before the compileJava task
     dependsOn generateBuildConfig
 }
 
@@ -85,32 +80,13 @@ tasks.register('buildClientOnly') {
     finalizedBy 'build'
 }
 
-// tasks.register('clientJar', Jar) {
-//     dependsOn remapJar
-//     outputs.upToDateWhen { false }
-//
-//     from(zipTree(tasks.remapJar.archivePath))
-//
-//     include 'net/shoreline/client/**'
-//     include 'net/shoreline/eventbus/**'
-//     include 'assets/**'
-//     include 'shoreline-refmap.json'
-//     include 'shoreline.accesswidener'
-//
-//     archiveBaseName = "client-raw"
-//     archiveClassifier = ""
-//     archiveVersion = ""
-// }
-
 def execute(String cmd) {
     try {
         final def stdout = new ByteArrayOutputStream()
-
         exec {
             commandLine cmd.split(" ")
             standardOutput = stdout
         }
-
         return stdout.toString().trim()
     } catch (ignored) {
         return null
