@@ -1,10 +1,11 @@
 # ShorelineRewrite
-- Make it work with Mio 1.21.1 (I'm just testing it because I'm not sure if it will be successful.)
+- This version has been modified to run on Mio.
+- Baritone was removed due to conflict with Mio Crack (Support for those without money).
 
 
-# request :
-Needs [Baritone API](https://github.com/cabaletta/baritone/releases/download/v1.11.2/baritone-api-fabric-1.11.2.jar) 
-
+# experiment : 
+- video here : (https://youtu.be/OUfqRxnsQ_E?si=FSTlQpIUIZfBk6Ud)
 ### **Credits**  
 - **[Skitttyy](https://github.com/Skitttyy/shoreline-client)** – for the src.
 - ImLegiitXD Provide source code (fixes the missing loader issue).
+- uid22 : Continuous editing and product development.
