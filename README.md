@@ -8,4 +8,4 @@
 ### **Credits**  
 - **[Skitttyy](https://github.com/Skitttyy/shoreline-client)** – for the src.
 - ImLegiitXD Provide source code (fixes the missing loader issue).
-- uid22 : Continuous editing and product development.
+- uid22 / 3 : Continuous editing and product development.
