@@ -22,7 +22,6 @@ import java.awt.*;
  */
 public class BaritoneModule extends ConcurrentModule
 {
-    // useless
     Config<Float> rangeConfig = register(new NumberConfig<>("Range", "Baritone block reach distance", 0.0f, 4.0f, 5.0f));
     Config<Boolean> placeConfig = register(new BooleanConfig("Place", "Allow baritone to place blocks", true));
     Config<Boolean> breakConfig = register(new BooleanConfig("Break", "Allow baritone to break blocks", true));
@@ -53,18 +52,20 @@ public class BaritoneModule extends ConcurrentModule
     public BaritoneModule()
     {
         super("Baritone", "Configure baritone", ModuleCategory.CLIENT);
+        // Print 
+        System.out.println("Baritone has been removed");
     }
 
-    @Override
     public void onEnable()
     {
-        System.out.println("Baritone has been removed");
+        // remove @override
+        System.out.println("Baritone has been removed.");
     }
 
     @EventListener
     public void onConfigUpdate(ConfigUpdateEvent event)
     {
-        // Baritone logic removed 
+        // Baritone logic removed
     }
     
     @EventListener
@@ -90,4 +91,4 @@ public class BaritoneModule extends ConcurrentModule
         }
     }
 }
-                                                                 
+    
