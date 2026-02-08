@@ -1,7 +1,5 @@
 package net.shoreline.client.impl.module.movement;
 
-import baritone.api.BaritoneAPI;
-import net.shoreline.client.ShorelineMod;
 import net.shoreline.client.api.config.Config;
 import net.shoreline.client.api.config.setting.BooleanConfig;
 import net.shoreline.client.api.module.ModuleCategory;
@@ -32,6 +30,12 @@ public class AutoWalkModule extends ToggleModule
     }
 
     @Override
+    public void onEnable() 
+    {
+        System.out.println("Baritone has been removed");
+    }
+
+    @Override
     public void onDisable()
     {
         mc.options.forwardKey.setPressed(false);
@@ -42,11 +46,7 @@ public class AutoWalkModule extends ToggleModule
     {
         if (event.getStage() == StageEvent.EventStage.PRE)
         {
-            if (ShorelineMod.isBaritonePresent() && BaritoneAPI.getProvider().getPrimaryBaritone().getPathingBehavior().isPathing())
-            {
-                return;
-            }
-
+            // Removed Baritone pathing check as the library is no longer present
             mc.options.forwardKey.setPressed(!mc.options.sneakKey.isPressed()
                     && (!lockConfig.getValue() || (!mc.options.jumpKey.isPressed() && mc.player.isOnGround())));
         }
