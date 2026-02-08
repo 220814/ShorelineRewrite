@@ -1,12 +1,9 @@
 package net.shoreline.client;
 
-import net.fabricmc.loader.api.FabricLoader;
-
 /**
  * @author linus
  * @since 1.0
  */
-
 public class ShorelineMod
 {
     public static final String MOD_NAME = "Shoreline";
@@ -15,7 +12,8 @@ public class ShorelineMod
 
     public ShorelineMod()
     {
-        System.exit(-1);
+        // Print message when the mod class is instantiated
+        System.out.println("Baritone has been removed");
     }
 
     /**
@@ -28,8 +26,12 @@ public class ShorelineMod
         Shoreline.init();
     }
 
+    /**
+     * Baritone check has been hardcoded to return false 
+     * to prevent any remaining logic from executing.
+     */
     public static boolean isBaritonePresent()
     {
-        return FabricLoader.getInstance().getModContainer("baritone").isPresent();
+        return false;
     }
 }
