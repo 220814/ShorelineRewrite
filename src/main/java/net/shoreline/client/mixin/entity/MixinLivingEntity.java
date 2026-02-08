@@ -1,6 +1,5 @@
 package net.shoreline.client.mixin.entity;
 
-import baritone.api.BaritoneAPI;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -12,7 +11,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.math.Vec3d;
-import net.shoreline.client.ShorelineMod;
 import net.shoreline.client.impl.event.entity.*;
 import net.shoreline.client.impl.event.render.entity.ElytraTransformEvent;
 import net.shoreline.client.impl.module.movement.ElytraFlyModule;
@@ -46,7 +44,6 @@ public abstract class MixinLivingEntity extends MixinEntity implements Globals
     @Shadow
     public abstract boolean hasStatusEffect(RegistryEntry<StatusEffect> par1);
 
-    // THÊM SHADOW NÀY ĐỂ GIẢI QUYẾT LỖI BIÊN DỊCH
     @Shadow 
     public abstract void setSprinting(boolean sprinting);
 
@@ -64,8 +61,6 @@ public abstract class MixinLivingEntity extends MixinEntity implements Globals
         EventBus.INSTANCE.dispatch(sprintEvent);
         if (sprintEvent.isCanceled()) 
         {
-            // Thay vì dùng super.setSprinting(true), ta dùng Shadow method
-            // Gọi hàm gốc thông qua shadow
             this.setSprinting(true);
             ci.cancel();
         }
@@ -160,16 +155,15 @@ public abstract class MixinLivingEntity extends MixinEntity implements Globals
     @Inject(method = "isFallFlying", at = @At("TAIL"), cancellable = true)
     public void hookIsFallFlying(CallbackInfoReturnable<Boolean> cir) 
     {
-        if (ShorelineMod.isBaritonePresent() && BaritoneAPI.getProvider().getPrimaryBaritone().getPathingBehavior().isPathing()) 
-        {
-            return;
-        }
+        // Baritone logic removed for compilation
         boolean flying = cir.getReturnValue();
         if (ElytraFlyModule.getInstance().isEnabled() && ElytraFlyModule.getInstance().isBounce() && (prevFlying && !flying)) 
         {
-            mc.player.startFallFlying();
-            mc.getNetworkHandler().sendPacket(new ClientCommandC2SPacket(mc.player, ClientCommandC2SPacket.Mode.START_FALL_FLYING));
-            cir.setReturnValue(true);
+            if (mc.player != null) {
+                mc.player.startFallFlying();
+                mc.getNetworkHandler().sendPacket(new ClientCommandC2SPacket(mc.player, ClientCommandC2SPacket.Mode.START_FALL_FLYING));
+                cir.setReturnValue(true);
+            }
         }
         prevFlying = flying;
     }
@@ -228,7 +222,12 @@ public abstract class MixinLivingEntity extends MixinEntity implements Globals
         if ((Object) this != mc.player) return;
         PlayerClimbEvent playerClimbEvent = new PlayerClimbEvent();
         EventBus.INSTANCE.dispatch(playerClimbEvent);
-        if (playerClimbEvent.isCanceled()) cir.setReturnValue(false);
+        if (playerClimbEvent.isCanceled()) 
+        {
+            // climb check
+            System.out.println("Baritone has been removed");
+            cir.setReturnValue(false);
+        }
     }
 }
-                                      
+        
