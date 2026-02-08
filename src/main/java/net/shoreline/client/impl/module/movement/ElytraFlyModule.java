@@ -1,7 +1,5 @@
 package net.shoreline.client.impl.module.movement;
 
-import baritone.api.BaritoneAPI;
-import baritone.api.pathing.goals.GoalBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.projectile.FireworkRocketEntity;
@@ -11,12 +9,8 @@ import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.shoreline.client.ShorelineMod;
 import net.shoreline.client.api.config.Config;
 import net.shoreline.client.api.config.setting.BooleanConfig;
 import net.shoreline.client.api.config.setting.EnumConfig;
@@ -30,13 +24,9 @@ import net.shoreline.client.impl.event.entity.player.TravelEvent;
 import net.shoreline.client.impl.event.network.PacketEvent;
 import net.shoreline.client.impl.event.network.PlayerTickEvent;
 import net.shoreline.client.impl.module.RotationModule;
-import net.shoreline.client.impl.module.client.AnticheatModule;
 import net.shoreline.client.init.Managers;
 import net.shoreline.client.mixin.accessor.AccessorFireworkRocketEntity;
-import net.shoreline.client.util.chat.ChatUtil;
 import net.shoreline.client.util.player.MovementUtil;
-import net.shoreline.client.util.player.PlayerUtil;
-import net.shoreline.client.util.player.RotationUtil;
 import net.shoreline.client.util.string.EnumFormatter;
 import net.shoreline.eventbus.annotation.EventListener;
 import net.shoreline.eventbus.event.StageEvent;
@@ -62,23 +52,17 @@ public class ElytraFlyModule extends RotationModule
     Config<Boolean> fireworkConfig = register(new BooleanConfig("Fireworks", "Uses fireworks when flying", false, () -> modeConfig.getValue() == FlyMode.CONTROL));
     // Bounce
     Config<Float> pitchConfig = register(new NumberConfig<>("Pitch", "The pitch angle of bounce", 70.0f, 80.0f, 90.0f, () -> modeConfig.getValue() == FlyMode.BOUNCE));
-    Config<Boolean> obstaclePasserConfig = new BooleanConfig("ObstaclePasser", "Passes obstacles and resets fly using Baritone", modeConfig.getValue() == FlyMode.BOUNCE);
 
     private final static double GRIM_AIR_FRICTION = 0.0264444413;
 
     private boolean resetSpeed;
     private float speed;
-
     private float cameraPitch;
 
     public ElytraFlyModule()
     {
         super("ElytraFly", "Allows you to fly freely using an elytra", ModuleCategory.MOVEMENT);
         INSTANCE = this;
-        if (ShorelineMod.isBaritonePresent())
-        {
-            register(obstaclePasserConfig);
-        }
     }
 
     public static ElytraFlyModule getInstance()
@@ -95,16 +79,14 @@ public class ElytraFlyModule extends RotationModule
     @Override
     public void onEnable()
     {
+        System.out.println("Baritone has been removed");
         resetSpeed = true;
     }
 
     @Override
     public void onDisable()
     {
-        if (ShorelineMod.isBaritonePresent())
-        {
-            BaritoneAPI.getProvider().getPrimaryBaritone().getPathingBehavior().forceCancel();
-        }
+        // Baritone cancel pathing logic removed
     }
 
     @EventListener
@@ -120,45 +102,12 @@ public class ElytraFlyModule extends RotationModule
     @EventListener
     public void onPlayerTick(PlayerTickEvent event)
     {
-        if (ShorelineMod.isBaritonePresent() && BaritoneAPI.getProvider().getPrimaryBaritone().getPathingBehavior().isPathing())
-        {
-            return;
-        }
-
         if (!mc.player.isFallFlying())
         {
             return;
         }
 
-        if (ShorelineMod.isBaritonePresent() && obstaclePasserConfig.getValue())
-        {
-            if (!BaritoneAPI.getSettings().freeLook.value)
-            {
-                ChatUtil.clientSendMessage(Formatting.RED + "Please enable FreeLook in Baritone to use ObstaclePasser!", 5005);
-                return;
-            }
-            if (mc.player.horizontalCollision)
-            {
-                BlockPos goalBlockPos = null;
-                for (int i = 3; i < 64; i++)
-                {
-                    Vec3d position = mc.player.getPos();
-                    Vec3d vec3d2 = RotationUtil.getRotationVector(0.0f, mc.player.getYaw());
-                    Vec3d vec3d3 = position.add(vec3d2.x * i, 0.0, vec3d2.z * i);
-                    BlockPos blockPos = BlockPos.ofFloored(vec3d3);
-                    if (mc.world.getBlockState(blockPos).isAir() && mc.world.getBlockState(blockPos.up()).isAir())
-                    {
-                        goalBlockPos = blockPos;
-                        break;
-                    }
-                }
-                if (goalBlockPos != null)
-                {
-                    BaritoneAPI.getProvider().getPrimaryBaritone().getCustomGoalProcess()
-                            .setGoalAndPath(new GoalBlock(goalBlockPos.getX(), goalBlockPos.getY(), goalBlockPos.getZ()));
-                }
-            }
-        }
+        // Removed Baritone ObstaclePasser logic
 
         if (modeConfig.getValue() == FlyMode.CONTROL && rotateConfig.getValue())
         {
@@ -209,11 +158,6 @@ public class ElytraFlyModule extends RotationModule
     @EventListener
     public void onPlayerMove(PlayerMoveEvent event)
     {
-        if (ShorelineMod.isBaritonePresent() && BaritoneAPI.getProvider().getPrimaryBaritone().getPathingBehavior().isPathing())
-        {
-            return;
-        }
-
         if (!mc.player.isFallFlying() || mc.player.isTouchingWater()
                 || mc.player.isInLava() || mc.player.getHungerManager().getFoodLevel() <= 6.0f)
         {
@@ -238,11 +182,6 @@ public class ElytraFlyModule extends RotationModule
     public void onTravel(TravelEvent event)
     {
         if (mc.player == null || mc.world == null)
-        {
-            return;
-        }
-
-        if (ShorelineMod.isBaritonePresent() && BaritoneAPI.getProvider().getPrimaryBaritone().getPathingBehavior().isPathing())
         {
             return;
         }
@@ -350,7 +289,7 @@ public class ElytraFlyModule extends RotationModule
     @EventListener
     public void onPacketInbound(PacketEvent.Inbound event)
     {
-        if (mc.player == null || ShorelineMod.isBaritonePresent() && BaritoneAPI.getProvider().getPrimaryBaritone().getPathingBehavior().isPathing())
+        if (mc.player == null)
         {
             return;
         }
@@ -364,11 +303,6 @@ public class ElytraFlyModule extends RotationModule
     @EventListener
     public void onCameraRotation(CameraRotationEvent event)
     {
-        if (ShorelineMod.isBaritonePresent() && BaritoneAPI.getProvider().getPrimaryBaritone().getPathingBehavior().isPathing())
-        {
-            return;
-        }
-
         if (modeConfig.getValue() == FlyMode.BOUNCE)
         {
             event.setYaw(event.getYaw());
@@ -379,11 +313,6 @@ public class ElytraFlyModule extends RotationModule
     @EventListener
     public void onMouseUpdate(MouseUpdateEvent event)
     {
-        if (ShorelineMod.isBaritonePresent() && BaritoneAPI.getProvider().getPrimaryBaritone().getPathingBehavior().isPathing())
-        {
-            return;
-        }
-
         if (modeConfig.getValue() == FlyMode.BOUNCE)
         {
             event.cancel();
@@ -468,6 +397,6 @@ public class ElytraFlyModule extends RotationModule
         CONTROL,
         BOOST,
         BOUNCE,
-        // PACKET
     }
 }
+                                                            
